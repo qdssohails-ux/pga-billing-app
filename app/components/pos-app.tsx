@@ -397,10 +397,10 @@ export default function POSApp() {
     setLastSynced(new Date());
   };
 
-  useEffect(() => {
-    const interval = window.setInterval(() => { refresh(); setLastSynced(new Date()); }, 555000);
-    return () => window.clearInterval(interval);
-  }, [refresh]);
+// ✅ Page referesh syncing:
+useEffect(() => {
+  refreshAll();
+}, []);
 
   useEffect(() => {
     const loadInvoices = async () => {
