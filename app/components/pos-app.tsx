@@ -437,7 +437,7 @@ export default function POSApp() {
     }));
   };
 
-  const removeLine = (productId: string) => setCart(current => current.filter(line => line.product.filter !== productId && line.product.id !== productId));
+  const removeLine = (productId: string) => setCart(current => current.filter(line => line.product.id !== productId));
 
   const handleScan = (value: string) => {
     const found = products.find(p => p.barcode?.toLowerCase() === value.toLowerCase() || p.sku.toLowerCase() === value.toLowerCase());
