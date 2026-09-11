@@ -1,49 +1,56 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/app/lib/prisma';
-import { stockUpdateSchema } from '@/app/lib/validators';
+import { NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma'; // Adjust to your Prisma client import path
 
-export const dynamic = 'force-dynamic';
-
-export async function GET(request: NextRequest) {
-  const q = request.nextUrl.searchParams.get('q')?.trim() ?? '';
-  const category = request.nextUrl.searchParams.get('category')?.trim() ?? '';
-
-  const products = await prisma.product.findMany({
-    where: {
-      active: true,
-      ...(category ? { category } : {}),
-      ...(q ? {
-        OR: [
-          { sku: { contains: q, mode: 'insensitive' } },
-          { name: { contains: q, mode: 'insensitive' } },
-          { category: { contains: q, mode: 'insensitive' } },
-          { barcode: { contains: q, mode: 'insensitive' } },
-        ]
-      } : {}),
-    },
-    orderBy: { name: 'asc' },
-  });
-
-  return NextResponse.json(products.map((p) => ({
-    ...p,
-    costPrice: Number(p.costPrice),
-    sellingPrice: Number(p.sellingPrice),
-  })));
+// GET all active products
+export async function GET() {
+  try {
+    const products = await prisma.product.findMany({
+      where: { active: true },
+      orderBy: { createdAt: 'desc' },
+    });
+    return NextResponse.json(products);
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
+  }
 }
 
-export async function PATCH(request: NextRequest) {
+// POST create new product (Admin action)
+export async function POST(request: Request) {
   try {
-    const body = stockUpdateSchema.parse(await request.json());
-    const product = await prisma.product.update({
-      where: { id: body.productId },
-      data: { stockQty: body.stockQty },
+    const body = await request.json();
+    const product = await prisma.product.create({
+      data: {
+        sku: body.sku,
+        barcode: body.barcode || null,
+        name: body.name,
+        category: body.category,
+        costPrice: body.costPrice,
+        sellingPrice: body.sellingPrice,
+        stockQty: Number(body.stockQty),
+        unit: body.unit || 'pcs',
+      },
     });
-    return NextResponse.json({
-      ...product,
-      costPrice: Number(product.costPrice),
-      sellingPrice: Number(product.sellingPrice),
-    });
+    return NextResponse.json(product, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: 'Unable to update stock.' }, { status: 400 });
+    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
+  }
+}
+
+// DELETE soft delete product (Admin action)
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+
+    await prisma.product.update({
+      where: { id },
+      data: { active: false },
+    });
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
   }
 }
