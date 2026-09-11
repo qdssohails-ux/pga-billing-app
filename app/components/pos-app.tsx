@@ -398,7 +398,7 @@ export default function POSApp() {
   };
 
   useEffect(() => {
-    const interval = window.setInterval(() => { refresh(); setLastSynced(new Date()); }, 5000);
+    const interval = window.setInterval(() => { refresh(); setLastSynced(new Date()); }, 555000);
     return () => window.clearInterval(interval);
   }, [refresh]);
 
