@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #09375f;
+  --brand-2: #0b7bdc;
+  --surface: #ffffff;
+  --canvas: #f4f7fb;
+}
+
+* { box-sizing: border-box; }
+html { min-width: 320px; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: #0f172a;
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, select { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+
+.app-bg {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(11,123,220,.08), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(23,166,115,.06), transparent 30%),
+    var(--canvas);
+}
+
+.scrollbar-thin::-webkit-scrollbar { width: 7px; height: 7px; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 999px; }
+.scrollbar-thin { scrollbar-width: thin; scrollbar-color: #cbd5e1 transparent; }
+
+@media print {
+  body { background: white !important; }
+  body * { visibility: hidden !important; }
+  #receipt-print, #receipt-print * { visibility: visible !important; }
+  #receipt-print {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  .receipt-58 { width: 58mm !important; }
+  .receipt-80 { width: 80mm !important; }
+  @page { margin: 0; size: auto; }
+}

@@ -1,0 +1,14 @@
+{
+  "name": "PGA Billing, Inventory & Stock Inquiry System",
+  "short_name": "PGA Billing",
+  "description": "Inventory inquiry and responsive point-of-sale billing application.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f4f7fb",
+  "theme_color": "#09375f",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
