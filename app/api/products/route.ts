@@ -1,56 +1,47 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma'; // Adjust to your Prisma client import path
 
-// GET all active products
-export async function GET() {
-  try {
-    const products = await prisma.product.findMany({
-      where: { active: true },
-      orderBy: { createdAt: 'desc' },
-    });
-    return NextResponse.json(products);
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 });
-  }
-}
+// Temporary mock data or replace with your database queries (e.g. Prisma)
+const mockProducts = [
+  {
+    id: '1',
+    sku: 'SMK-001',
+    name: 'Classic Cigarettes',
+    category: 'Smoking Products',
+    unit: 'Pack',
+    sellingPrice: 15.0,
+    stockQty: 50,
+    reorderLevel: 10,
+    batchNumber: 'B101',
+    barcode: '123456789',
+  },
+];
 
-// POST create new product (Admin action)
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const product = await prisma.product.create({
-      data: {
-        sku: body.sku,
-        barcode: body.barcode || null,
-        name: body.name,
-        category: body.category,
-        costPrice: body.costPrice,
-        sellingPrice: body.sellingPrice,
-        stockQty: Number(body.stockQty),
-        unit: body.unit || 'pcs',
-      },
-    });
-    return NextResponse.json(product, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Failed to create product' }, { status: 500 });
-  }
-}
-
-// DELETE soft delete product (Admin action)
-export async function DELETE(request: Request) {
+export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const id = searchParams.get('id');
+    const search = searchParams.get('search')?.toLowerCase() || '';
+    const category = searchParams.get('category') || 'All';
 
-    if (!id) return NextResponse.json({ error: 'ID required' }, { status: 400 });
+    let filtered = mockProducts;
 
-    await prisma.product.update({
-      where: { id },
-      data: { active: false },
-    });
+    if (category !== 'All') {
+      filtered = filtered.filter((p) => p.category === category);
+    }
 
-    return NextResponse.json({ success: true });
+    if (search) {
+      filtered = filtered.filter(
+        (p) =>
+          p.name.toLowerCase().includes(search) ||
+          p.sku.toLowerCase().includes(search) ||
+          p.barcode?.toLowerCase().includes(search)
+      );
+    }
+
+    return NextResponse.json(filtered, { status: 200 });
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to delete product' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch products' },
+      { status: 500 }
+    );
   }
 }

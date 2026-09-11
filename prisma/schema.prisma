@@ -12,6 +12,12 @@ enum Role {
   EMPLOYEE
 }
 
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+}
+
 model User {
   id        String   @id @default(cuid())
   name      String
@@ -73,10 +79,4 @@ model InvoiceItem {
 
   @@index([invoiceId])
   @@index([productId])
-}
-
-enum PaymentMethod {
-  CASH
-  CARD
-  UPI
 }

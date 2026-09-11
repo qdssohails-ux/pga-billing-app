@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import AdminProductManager from './admin-product-manager';
 import {
   AlertTriangle,
   Barcode,
@@ -20,6 +21,7 @@ import {
   Trash2,
   X,
   WalletCards,
+  ShieldAlert,
 } from 'lucide-react';
 import { money } from '@/app/lib/money';
 import type { Product } from '@/app/hooks/use-products';
@@ -372,6 +374,7 @@ function StockModal({ product, onClose, onSaved }: { product: Product; onClose: 
 }
 
 export default function POSApp() {
+  const [userRole, setUserRole] = useState<'ADMIN' | 'EMPLOYEE'>('ADMIN');
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('All');
   const [tab, setTab] = useState<'catalog' | 'cart'>('catalog');
@@ -397,10 +400,9 @@ export default function POSApp() {
     setLastSynced(new Date());
   };
 
-// ✅ Page referesh syncing:
-useEffect(() => {
-  refreshAll();
-}, []);
+  useEffect(() => {
+    refreshAll();
+  }, []);
 
   useEffect(() => {
     const loadInvoices = async () => {
@@ -468,6 +470,13 @@ useEffect(() => {
               <div><p className="text-[10px] font-black uppercase tracking-[.18em] text-brand-600">PGA</p><h1 className="text-xl font-black tracking-tight text-slate-900 sm:text-2xl">Billing, Inventory & Stock Inquiry</h1><p className="hidden text-xs font-medium text-slate-500 sm:block">Fast stock lookup • Responsive POS • Thermal receipts</p></div>
             </div>
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setUserRole(prev => prev === 'ADMIN' ? 'EMPLOYEE' : 'ADMIN')}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-slate-900 px-3 py-2 text-xs font-extrabold text-white transition hover:bg-slate-800"
+              >
+                <ShieldAlert size={14} />
+                Role: {userRole}
+              </button>
               <div className="hidden rounded-xl bg-emerald-50 px-3 py-2 text-right sm:block"><p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Live stock</p><p className="text-xs font-extrabold text-emerald-800">Synced {lastSynced.toLocaleTimeString()}</p></div>
               <button onClick={() => { refreshAll(); }} className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 hover:bg-slate-50" title="Refresh"><RefreshCw size={17} /></button>
               <button onClick={() => setShowInvoices(true)} className="hidden items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 sm:flex"><Banknote size={16} /> Recent invoices</button>
@@ -478,6 +487,10 @@ useEffect(() => {
 
         <div className="grid min-h-[calc(100vh-152px)] grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1.55fr)_minmax(390px,.8fr)]">
           <section className={`${tab === 'cart' ? 'hidden lg:flex' : 'flex'} min-h-0 flex-col gap-4`}>
+            
+            {/* Admin Product Manager Component */}
+            <AdminProductManager userRole={userRole} onProductUpdated={refreshAll} />
+
             <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm sm:p-4">
               <div className="flex flex-col gap-3 lg:flex-row">
                 <div className="relative flex-1">
