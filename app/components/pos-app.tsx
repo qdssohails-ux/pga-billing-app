@@ -8,7 +8,7 @@ import {
   CheckCircle2,
   ChevronRight,
   CreditCard,
-  IndianRupee,
+  Banknote,
   Menu,
   Minus,
   PackageSearch,
