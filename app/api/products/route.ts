@@ -1,46 +1,44 @@
 import { NextResponse } from 'next/server';
-
-// Temporary mock data or replace with your database queries (e.g. Prisma)
-const mockProducts = [
-  {
-    id: '1',
-    sku: 'SMK-001',
-    name: 'Classic Cigarettes',
-    category: 'Smoking Products',
-    unit: 'Pack',
-    sellingPrice: 15.0,
-    stockQty: 50,
-    reorderLevel: 10,
-    batchNumber: 'B101',
-    barcode: '123456789',
-  },
-];
+import { prisma } from '@/app/lib/prisma'; // Adjust import path if your Prisma client is located elsewhere
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const search = searchParams.get('search')?.toLowerCase() || '';
-    const category = searchParams.get('category') || 'All';
+    
+    // Accept either 'q' or 'search' parameter
+    const query = (searchParams.get('q') || searchParams.get('search') || '').trim();
+    const category = (searchParams.get('category') || '').trim();
 
-    let filtered = mockProducts;
+    // Build Prisma query dynamically
+    const whereClause: any = {};
 
-    if (category !== 'All') {
-      filtered = filtered.filter((p) => p.category === category);
+    // Filter by Category (ignore if 'All' or empty)
+    if (category && category !== 'All') {
+      whereClause.category = {
+        equals: category,
+        mode: 'insensitive',
+      };
     }
 
-    if (search) {
-      filtered = filtered.filter(
-        (p) =>
-          p.name.toLowerCase().includes(search) ||
-          p.sku.toLowerCase().includes(search) ||
-          p.barcode?.toLowerCase().includes(search)
-      );
+    // Filter by Search Query across Name, SKU, and Barcode
+    if (query) {
+      whereClause.OR = [
+        { name: { contains: query, mode: 'insensitive' } },
+        { sku: { contains: query, mode: 'insensitive' } },
+        { barcode: { contains: query, mode: 'insensitive' } },
+      ];
     }
 
-    return NextResponse.json(filtered, { status: 200 });
-  } catch (error) {
+    const products = await prisma.product.findMany({
+      where: whereClause,
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return NextResponse.json(products);
+  } catch (error: any) {
+    console.error('Database query error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch products' },
+      { error: 'Failed to fetch products from database', details: error.message },
       { status: 500 }
     );
   }

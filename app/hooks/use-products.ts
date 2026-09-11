@@ -22,18 +22,31 @@ export function useProducts(q: string, category: string) {
 
   const refresh = useCallback(async () => {
     const params = new URLSearchParams();
-    if (q) params.set('q', q);
-    if (category && category !== 'All') params.set('category', category);
-    
+
+    // Sends both 'q' and 'search' to guarantee compatibility regardless of backend API naming
+    if (q.trim()) {
+      params.set('q', q.trim());
+      params.set('search', q.trim());
+    }
+
+    if (category && category !== 'All') {
+      params.set('category', category.trim());
+    }
+
     setLoading(true);
+
     try {
-      const response = await fetch(`/api/products?${params.toString()}`, { 
-        cache: 'no-store' 
+      const response = await fetch(`/api/products?${params.toString()}`, {
+        cache: 'no-store',
+        headers: {
+          'Pragma': 'no-cache',
+          'Cache-Control': 'no-cache',
+        },
       });
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => '');
-        console.error(`API Error (${response.status}):`, errorText);
+        console.error(`[useProducts] API Error (${response.status}):`, errorText);
         setProducts([]);
         return;
       }
@@ -41,15 +54,15 @@ export function useProducts(q: string, category: string) {
       const data = await response.json();
       setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('Failed to fetch products:', error);
+      console.error('[useProducts] Failed to fetch products:', error);
       setProducts([]);
     } finally {
       setLoading(false);
     }
   }, [q, category]);
 
-  useEffect(() => { 
-    refresh(); 
+  useEffect(() => {
+    refresh();
   }, [refresh]);
 
   return { products, loading, refresh };

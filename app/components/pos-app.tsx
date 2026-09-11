@@ -385,7 +385,7 @@ export default function POSApp() {
   const [stockProduct, setStockProduct] = useState<Product | null>(null);
   const [receipt, setReceipt] = useState<Invoice | null>(null);
   const [checkingOut, setCheckingOut] = useState(false);
-  const [lastSynced, setLastSynced] = useState<Date>(new Date());
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [showInvoices, setShowInvoices] = useState(false);
 
@@ -477,7 +477,7 @@ export default function POSApp() {
                 <ShieldAlert size={14} />
                 Role: {userRole}
               </button>
-              <div className="hidden rounded-xl bg-emerald-50 px-3 py-2 text-right sm:block"><p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Live stock</p><p className="text-xs font-extrabold text-emerald-800">Synced {lastSynced.toLocaleTimeString()}</p></div>
+              <div className="hidden rounded-xl bg-emerald-50 px-3 py-2 text-right sm:block"><p className="text-[10px] font-bold uppercase tracking-wider text-emerald-600">Live stock</p><p className="text-xs font-extrabold text-emerald-800">Synced {lastSynced ? lastSynced.toLocaleTimeString() : 'Just now'}</p></div>
               <button onClick={() => { refreshAll(); }} className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 hover:bg-slate-50" title="Refresh"><RefreshCw size={17} /></button>
               <button onClick={() => setShowInvoices(true)} className="hidden items-center gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-bold text-slate-600 hover:bg-slate-50 sm:flex"><Banknote size={16} /> Recent invoices</button>
               <button className="rounded-xl border border-slate-200 bg-white p-2.5 text-slate-600 hover:bg-slate-50 sm:hidden" title="Menu"><Menu size={18} /></button>
