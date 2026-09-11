@@ -20,7 +20,6 @@ import {
   Trash2,
   X,
   WalletCards,
-  Banknote,
 } from 'lucide-react';
 import { money } from '@/app/lib/money';
 import type { Product } from '@/app/hooks/use-products';
@@ -50,7 +49,14 @@ type Invoice = {
   }>;
 };
 
-const categories = ['All', 'Medicine', 'Supplements', 'Personal Care', 'Medical Supplies', 'Medical Devices', 'Wellness'];
+const categories = [
+  'All',
+  'Smoking Products',
+  'Cold Drinks',
+  'Snacks',
+  'Hot Beverages',
+  'Convenience Items',
+];
 
 function StockBadge({ product }: { product: Product }) {
   if (product.stockQty === 0) {
@@ -185,7 +191,7 @@ function CartPanel({
           <label className="block">
             <span className="text-xs font-bold text-slate-500">Discount</span>
             <div className="mt-1 flex items-center rounded-xl border border-slate-200 bg-slate-50 px-3">
-              <IndianRupee size={14} className="text-slate-400" />
+              <span className="text-xs font-bold text-slate-400">Rs.</span>
               <input
                 type="number"
                 min={0}
@@ -431,7 +437,7 @@ export default function POSApp() {
     }));
   };
 
-  const removeLine = (productId: string) => setCart(current => current.filter(line => line.product.id !== productId));
+  const removeLine = (productId: string) => setCart(current => current.filter(line => line.product.filter !== productId && line.product.id !== productId));
 
   const handleScan = (value: string) => {
     const found = products.find(p => p.barcode?.toLowerCase() === value.toLowerCase() || p.sku.toLowerCase() === value.toLowerCase());
